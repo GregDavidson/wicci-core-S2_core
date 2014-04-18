@@ -9,11 +9,11 @@ This project is dependent on
 ## Names and Environment Contexts for PostgreSQL
 
 Names and Environments are datatypes
-implemented as Object-Oriented Classes with
 
-* With References possessing Type and Referential Integrity
-* Living as Rows in Tables
-* Operators which dispatch to Method Functions
+* implemented as Object-Oriented Classes
+* with References possessing Type and Referential Integrity
+* stored as Rows in Tables
+* with Method Functions which realize generic Operator Functions
 
 ### Names
 
@@ -32,8 +32,6 @@ Names are
 
 ### Environments
 
-Environments
-
 Environments represent contexts for the evaluation of
 methods.  During recursive evaluation of composite objects,
 e.g. document trees, a reference to the evaluation
@@ -47,10 +45,12 @@ for a new environment whose Bindings and Associations will
 take precedence over the Bindings and Associations in the
 original environment.
 
-* Inherit from 0 or more Base Environments
-* Are associated with Name -> Value Bindings
-* Are associated with Object + Feature -> Value Associations
-* Can block inheritance of specific Bindings and Associations
+Environments
+
+* inherit from 0 or more Base Environments
+* are associated with Name -> Value Bindings
+* are associated with Object + Feature -> Value Associations
+* can block inheritance of specific Bindings and Associations
 
 |Function/Operator| Purpose
 |-----------------------|----------
