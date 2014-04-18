@@ -21,5 +21,6 @@ the-output
 wicci-today
 WICCI-C-FILES.refs
 WICCI-SQL-FILES.refs
-*.tor_env
+*.tor_*
+*.tor-*
 name-env.sql

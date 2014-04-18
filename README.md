@@ -8,22 +8,18 @@ This project is dependent on
 
 ## Names and Environment Contexts for PostgreSQL
 
-Names and Environments are first class datatypes
-participating in the Object-Oriented Features
+Names and Environments are datatypes
+implemented as Object-Oriented Classes with
 
-* Reference
-* Row
-* Operator and Method Function
-
-which are implemented in
-
-* [WicciS1_refs](https://github.com/GregDavidson/wicci-core-S1_refs).
+* With References possessing Type and Referential Integrity
+* Living as Rows in Tables
+* Operators which dispatch to Method Functions
 
 ### Names
 
-Names are symbols with short identifier-like unique names
-intended to be used to name things or attributes within some
-environment or context.
+Names are unique symbols with short unique identifier-like
+names intended to be used to name things or attributes
+within an environment context.
 
 Names are
 * Referenced by name_refs
@@ -39,10 +35,10 @@ Names are
 Environments
 
 Environments represent contexts for the evaluation of
-methods.  When evaluation of composite objects,
-e.g. document trees involves recursion, a reference to the
-evaluation environment will be passed along with the
-evaluation of all component objects.
+methods.  During recursive evaluation of composite objects,
+e.g. document trees, a reference to the evaluation
+environment is passed along for the evaluation of all
+component objects.
 
 Bindings and Associations in an environment should never be
 changed; however, because environments support inheritance,
