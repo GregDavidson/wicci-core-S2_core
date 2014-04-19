@@ -1,4 +1,4 @@
-The Wicci S2_core files are covered by the
+The files in this project are covered by the
 
 GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
