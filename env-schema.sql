@@ -94,8 +94,12 @@ CREATE TYPE env_pair_stati AS (
 );
 
 CREATE OR REPLACE
-FUNCTION stati_env(env_pair_stati) RETURNS env_refs AS $$
-	SELECT ($1).env
+FUNCTION stati_env(regprocedure, env_pair_stati) RETURNS env_refs AS $$
+	SELECT CASE ($2).status
+		WHEN 'failed status' THEN
+			debug_warn($1, ($2).key_, ($2).value_::text, 'failed status'::text)
+  END;
+	SELECT non_null( ($2).env, $1 )
 $$ LANGUAGE SQL STRICT IMMUTABLE;
 
 CREATE OR REPLACE

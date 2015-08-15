@@ -228,8 +228,7 @@ inherited env_rows';
 -- ** env_key_set(env_refs, key_, refs) -> BOOLEAN
 -- Would it be better to return something else?
 CREATE OR REPLACE
-FUNCTION env_key_set(env_refs, refs, refs)
-RETURNS BOOLEAN AS $$
+FUNCTION try_env_key_set(env_refs, refs, refs) RETURNS BOOLEAN AS $$
 	BEGIN
 		PERFORM env_ FROM env_bindings
 			WHERE env_ IS NOT DISTINCT FROM $1
@@ -240,7 +239,19 @@ RETURNS BOOLEAN AS $$
 		RAISE NOTICE 'env_key_set(%, %) fails', $1, $2;
 		RETURN false;
 	END
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql STRICT;
+COMMENT ON FUNCTION try_env_key_set(env_refs, refs, refs) IS
+'tries to create the indicated binding through simple
+insertion, returns true on success; non-monotonic if there
+was an inheritable value for this key; inserting ref_nil()
+will mask any inherited value';
+
+CREATE OR REPLACE
+FUNCTION env_key_set(env_refs, refs, refs) RETURNS BOOLEAN AS $$
+	SELECT non_null(
+		try_env_key_set($1, $2, $3),	'env_key_set(env_refs, refs, refs)'
+ )
+$$ LANGUAGE sql;
 COMMENT ON FUNCTION env_key_set(env_refs, refs, refs) IS
 'tries to create the indicated binding through simple
 insertion, returns true on success; non-monotonic if there
@@ -455,7 +466,7 @@ the value and is no longer necessary';
 -- just replaced = with IS NOT DISTINCT FROM
 -- but = used to work --- any idea why???
 CREATE OR REPLACE
-FUNCTION env_add_binding(env_refs, refs, refs)
+FUNCTION try_env_add_binding(env_refs, refs, refs)
 RETURNS env_pair_stati AS $$
 	SELECT COALESCE(
 		( SELECT try_env_pair_status($1, $2, $3, 'found status')
@@ -464,11 +475,30 @@ RETURNS env_pair_stati AS $$
 		( SELECT try_env_pair_status($1, $2, $3, 'inherited status')
 			WHERE env_key_value($1, $2) IS NOT DISTINCT FROM $3
 		),
-		( SELECT try_env_pair_status( $1, $2, $3, CASE status
-				WHEN false THEN 'failed status'::stati
-				WHEN true THEN 'inserted status'::stati
-		END ) FROM env_key_set($1, $2, $3) status )
+		( SELECT ( $1, $2, $3, CASE
+				WHEN status IS NULL OR status = false THEN 'failed status'::stati
+				WHEN status = true THEN 'inserted status'::stati
+		END )::env_pair_stati FROM try_env_key_set($1, $2, $3) status )
 	) WHERE non_nil($1)
+$$  LANGUAGE sql STRICT;
+
+CREATE OR REPLACE
+FUNCTION env_add_binding_(env_refs, refs, refs, regprocedure)
+RETURNS env_pair_stati AS $$
+	SELECT non_null($1, $4, 'NULL env');
+	SELECT non_null($2, $4, 'NULL key');
+	SELECT CASE WHEN $3 IS NULL
+	THEN ($1, $2, $3, 'failed status')::env_pair_stati
+	ELSE non_null(	try_env_add_binding($1, $2, $3), $4 )
+	END
+$$  LANGUAGE sql;
+
+CREATE OR REPLACE
+FUNCTION env_add_binding(env_refs, refs, refs)
+RETURNS env_pair_stati AS $$
+	SELECT env_add_binding_(
+		$1, $2, $3, 'env_add_binding(env_refs, refs, refs)'
+	)
 $$  LANGUAGE sql;
 
 -- CREATE OR REPLACE

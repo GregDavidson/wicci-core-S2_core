@@ -96,12 +96,12 @@ RETURNS regprocedure AS $$
 	SELECT create_func(
 		_name := $1, _args := ARRAY[meta_arg('env_refs'),meta_arg($2)],
 		_returns := 'env_pair_stati', _lang := 'meta__sql',
-		_strict := 'meta__strict2', _stability := 'meta__volatile',
+		_strict := 'meta__non_strict', _stability := 'meta__volatile', -- was strict2 but then get NULL status!
 		_body :=E'\tSELECT ' || call_text(
 				'env_add_binding', '$1', quote_literal($1) || '::name_refs', '$2'
 		),
-		_ := 'lookup value associated with name ' || $1 ||
-		' in given environment and return as value of type ' || $2,
+		_ := 'associate name ' || $1 ||
+		' in given environment with value of type ' || $2 || ' and return the status',
 		_by := 'create_env_name_type_func(text, regtype)'
 	)
 $$ LANGUAGE sql;
