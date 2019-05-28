@@ -2,6 +2,7 @@
 \ir settings.sql
 SELECT set_file('name_refs-test.sql', '$Id');
 
+-- Right now, 28 May 2019, things fail with this debugging code on!!!
 SELECT spx_debug_on();
 SELECT refs_debug_on();
 
