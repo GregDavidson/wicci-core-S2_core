@@ -642,7 +642,8 @@ VIEW associations_summary AS
 CREATE OR REPLACE
 FUNCTION env_refs_ready() RETURNS void AS $$
 BEGIN
-	PERFORM refs_ready();
+	PERFORM s1_refs.ensure_schema_ready();
+-- 	PERFORM refs_ready();
 -- Check sufficient elements of the TorEnv
 -- dependency tree that we can be assured that
 -- all of its modules have been loaded.
